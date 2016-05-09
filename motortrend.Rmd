@@ -7,6 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
 ```
 
 ## Executive Summary
@@ -25,21 +26,31 @@ In this report we try to answer the question "Is an automatic or manual transmis
 * Number of forward gears
 * Number of carburetors
 
-## 
-```{r cars}
-summary(cars)
+## Exploratory analysis
+
+First we'll try to address the question "Is an automatic or manual transmission better for MPG?". We see from the below graphs that at manual cars (am=0) have higher mean and median mpg than automatic transmission cars. I have added to the below boxplots the mean mpg for each group indicated by a red point and text. At first glance the boxplot indicates that manual cars have higher mpg, but there is significant overlap of mpg between the two groups which suggest that determing the mpg of a car depends on more than just whether the transmission is manual or automatic as the am feature does not explain all the variance of mpg.
+```{r am_only}
+means <- aggregate(mpg ~  am, mtcars, mean)
+g<-ggplot(data=mtcars,aes(y=mpg,x=factor(am)))+
+        geom_boxplot()+stat_summary(fun.y=mean, colour="darkred", geom="point", shape=18, size=3,show_guide = FALSE)+geom_text(data = means, aes(label = mpg, y = mpg + 1))
+g
+fitamonly<-lm(mpg~am,mtcars)
+summary(fitamonly)
 ```
+A linear regression model using only am as a predictor has an R-squared value of only 0.3385, which suggests a more accurate model predicting a car's mpg should use other predictors as well.
 
 ## Including Plots
 
 You can also embed plots, for example:
 
 ```{r pressure, echo=FALSE}
-g<-ggplot(data=mtcars,aes(y=mpg,x=wt,colour=factor(am)))+geom_point()+geom_abline()
 
+pairs(mpg~.,mtcars)
+#g<-ggplot(data=mtcars,aes(y=mpg,x=wt,colour=factor(am)))+geom_point()+geom_abline()
+#g
 
-g<-ggplot(data=mtcars,aes(y=mpg,x=factor(am)))+geom_boxplot()
-
+#g<-ggplot(data=mtcars,aes(y=mpg,x=factor(am)))+geom_boxplot()
+#g
 
 
 ```
