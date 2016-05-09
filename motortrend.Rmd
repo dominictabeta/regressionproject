@@ -1,0 +1,47 @@
+---
+title: "Factors affecting MPG in cars"
+author: "Dominic Tabeta"
+date: "May 9, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Executive Summary
+
+In this report we try to answer the question "Is an automatic or manual transmission better for MPG?" and we also try to quantify the MPG difference between automatic and manual transmissions. We compare MPG of 32 cars with the following features and try to quantify the MPG impact of some of these selected features:
+
+* Transmission (0=automatic, 1= manual)
+* Number of cylinders
+* Displacement (cubic inches)
+* Gross horsepower
+* Rear axle ratio
+* weight (in 1000 lbs)
+* 1/4 mile time
+* Engine configuration (0=V, 1=straight)
+* Number of forward gear
+* Number of forward gears
+* Number of carburetors
+
+## 
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+g<-ggplot(data=mtcars,aes(y=mpg,x=wt,colour=factor(am)))+geom_point()+geom_abline()
+
+
+g<-ggplot(data=mtcars,aes(y=mpg,x=factor(am)))+geom_boxplot()
+
+
+
+```
+
+
