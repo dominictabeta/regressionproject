@@ -1,5 +1,5 @@
 ---
-title: "Factors affecting MPG in cars"
+title: "Car characteristics affecting MPG in cars"
 author: "Dominic Tabeta"
 date: "May 9, 2016"
 output: html_document
@@ -26,33 +26,78 @@ In this report we try to answer the question "Is an automatic or manual transmis
 * Number of forward gears
 * Number of carburetors
 
+## Data Processing
+```{r processing, echo=TRUE}
+data(mtcars)
+summary(mtcars)
+```
+
+The summary indicates that the am predictor is a numeric class. For better interpretability we convert it to a factor class instead, converting 0s to Automatic and 1s to Manual.
+```{r factorizeam, echo=TRUE}
+mtcars$am <- as.factor(mtcars$am)
+levels(mtcars$am) <- c("Automatic", "Manual")
+```
+
+
 ## Exploratory analysis
 
 First we'll try to address the question "Is an automatic or manual transmission better for MPG?". We see from the below graphs that at manual cars (am=0) have higher mean and median mpg than automatic transmission cars. I have added to the below boxplots the mean mpg for each group indicated by a red point and text. At first glance the boxplot indicates that manual cars have higher mpg, but there is significant overlap of mpg between the two groups which suggest that determing the mpg of a car depends on more than just whether the transmission is manual or automatic as the am feature does not explain all the variance of mpg.
-```{r am_only}
+
+
+```{r am_only,echo=TRUE}
 means <- aggregate(mpg ~  am, mtcars, mean)
-g<-ggplot(data=mtcars,aes(y=mpg,x=factor(am)))+
-        geom_boxplot()+stat_summary(fun.y=mean, colour="darkred", geom="point", shape=18, size=3,show_guide = FALSE)+geom_text(data = means, aes(label = mpg, y = mpg + 1))
-g
+suppressWarnings(g<-ggplot(data=mtcars,aes(y=mpg,x=am))+
+        geom_boxplot()+stat_summary(fun.y=mean, colour="darkred", geom="point", shape=18, size=3,show_guide = FALSE)+geom_text(data = means, aes(label = mpg, y = mpg + 1)))+ggtitle("MPG by transmission type")
+
+
+```
+
+The means of Automatic and Manual transmission cars are 17.15 and 24.39 respectively. Using t.test, we test if this MPG difference is significant.
+
+
+``` {r ttest}
+means <- aggregate(mpg ~  am, mtcars, mean)
+t.test(mtcars[mtcars$am=="Automatic","mpg"],mtcars[mtcars$am=="Manual","mpg"])
+```
+
+
+Assuming an alpha level of 0.05 and all other car characteristics being equal p-value of 0.001374, we can reject the null hypothesis and conclude that automatic vehicles have lower mpg than manual vehicles. However the response of mpg to other characteristics needs further investigation.
+
+## Simple Linear regression model using only am
+
+``` {r simplelm}
 fitamonly<-lm(mpg~am,mtcars)
 summary(fitamonly)
 ```
-A linear regression model using only am as a predictor has an R-squared value of only 0.3385, which suggests a more accurate model predicting a car's mpg should use other predictors as well.
+A linear regression model using only am as a predictor has an R-squared value of only 0.3598, meaning this simple model only explains 35.98% of mpg's variance, which suggests a more accurate model predicting a car's mpg should use other predictors as well. Under this simplified model, the amManual coefficient suggests that manual cars get 7.245 more miles per gallon than automatic vehicles.
 
-## Including Plots
+## A more complex regression model
 
-You can also embed plots, for example:
+We call the step() function to return a more complex regression model using mpg again as the response.
+```{r stepwise, echo=FALSE}
+stepmodel <- step(lm(data = mtcars, mpg ~ .),trace=0)
+summary(stepmodel) 
+```
+The stepwise algorithm returned a linear regression model that used predictors am, qsec and wt. The R-squared value of this model is 84.97% which explains the mpg variance to a much higher degree. While the model uses am as a predictor, the p-value for am is higher than that of the other predictors used which suggests it is the least significant of the three predictors used. 
 
-```{r pressure, echo=FALSE}
+The amManual coefficient in the summary quantifies the effect of transmission type on mpg. For vehicles with the same qsec and wt characteristics, manual vehicles get 2.9358 additional miles per gallon than automatic vehicles.
 
-pairs(mpg~.,mtcars)
-#g<-ggplot(data=mtcars,aes(y=mpg,x=wt,colour=factor(am)))+geom_point()+geom_abline()
-#g
+The residual diagnostics indicate normality and a random pattern of variation. Refer to the appendix for the residual diagnostic plots for the model returned by the stepwise function.
 
-#g<-ggplot(data=mtcars,aes(y=mpg,x=factor(am)))+geom_boxplot()
-#g
+## Results
+In both the simple and final regression models we used we oberve a tendency for manual cars to have greater mpg than automatic cars. The simpler model indicated that mpg variation could be well explained by am alone. By using additional predictors qsec and wt, the second model explained 84% of the variation and also quantified the mpg response to transmission type. For vehicles with the same qsec and wt characteristics, manual vehicles get 2.9358 additional miles per gallon than automatic vehicles.
 
+## Appendix 1: Paired scatter plots of the mtcars data set
 
+Let's now look at how mpg responds to other characteristics of the cars in our list. The top row of the below pairs plot gives us an idea of which other car characteristics affect MPG. The am characteristic is represented by the color of each point in the scatter plots with red representing automatic transmission and blue representing manual transmission.
+```{r pairs, echo=FALSE}
+pairs(mtcars, lower.panel=NULL )
 ```
 
+We can see that mpg responds to other variables besides mpg
 
+## Appendix 2: Residual diagnostics for second regression model
+```{r residualdiagnostics, echo=FALSE}
+par(mfrow = c(2,2))
+plot(stepmodel)
+```
