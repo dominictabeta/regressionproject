@@ -41,7 +41,7 @@ levels(mtcars$am) <- c("Automatic", "Manual")
 
 ## Exploratory analysis
 
-First we'll try to address the question "Is an automatic or manual transmission better for MPG?". We see from the below graphs that at manual cars (am=0) have higher mean and median mpg than automatic transmission cars. I have added to the below boxplots the mean mpg for each group indicated by a red point and text. At first glance the boxplot indicates that manual cars have higher mpg, but there is significant overlap of mpg between the two groups which suggest that determing the mpg of a car depends on more than just whether the transmission is manual or automatic as the am feature does not explain all the variance of mpg.
+First we'll try to address the question "Is an automatic or manual transmission better for MPG?". We see from the below graphs that at manual cars have higher mean and median mpg than automatic transmission cars. I have added to the below boxplots the mean mpg for each group indicated by a red point and text. At first glance the boxplot indicates that manual cars have higher mpg, but there is significant overlap of mpg between the two groups which suggest that determing the mpg of a car depends on more than just whether the transmission is manual or automatic as the am feature does not explain all the variance of mpg.
 
 
 ```{r am_only,echo=TRUE}
@@ -56,7 +56,6 @@ The means of Automatic and Manual transmission cars are 17.15 and 24.39 respecti
 
 
 ``` {r ttest}
-means <- aggregate(mpg ~  am, mtcars, mean)
 t.test(mtcars[mtcars$am=="Automatic","mpg"],mtcars[mtcars$am=="Manual","mpg"])
 ```
 
