@@ -14,14 +14,12 @@ library(ggplot2)
 
 In this report we try to answer the question "Is an automatic or manual transmission better for MPG?" and we also try to quantify the MPG difference between automatic and manual transmissions. We compare MPG of 32 cars with the following features and try to quantify the MPG impact of some of these features.
 
-## Data Processing
-```{r processing, echo=TRUE}
+```{r processing, echo=FALSE}
 data(mtcars)
-apply(mtcars,2,class)
+#apply(mtcars,2,class)
 ```
 
-The am predictor is a numeric class so for better interpretability we convert it to a factor class instead, converting 0s to Automatic and 1s to Manual.
-```{r factorizeam, echo=TRUE}
+```{r factorizeam, echo=FALSE}
 mtcars$am <- as.factor(mtcars$am)
 levels(mtcars$am) <- c("Automatic", "Manual")
 ```
@@ -32,8 +30,10 @@ levels(mtcars$am) <- c("Automatic", "Manual")
 First we'll try to address the question "Is an automatic or manual transmission better for MPG?". We see from the below graphs that at manual cars have higher mean and median mpg than automatic transmission cars. I have added to the below boxplots the mean mpg for each group indicated by a red point and text. At first glance the boxplot indicates that manual cars have higher mpg, but there is significant overlap of mpg between the two groups which suggest that determing the mpg of a car depends on more than just whether the transmission is manual or automatic as the am feature does not explain all the variance of mpg.
 
 The means of Automatic and Manual transmission cars are 17.15 and 24.39 respectively. Using t.test, we test if this MPG difference is significant.
-``` {r ttest}
-t.test(mtcars[mtcars$am=="Automatic","mpg"],mtcars[mtcars$am=="Manual","mpg"])
+``` {r ttest,echo=TRUE}
+tt<-t.test(mtcars[mtcars$am=="Automatic","mpg"],mtcars[mtcars$am=="Manual","mpg"])
+tt$p.value
+tt$estimate
 ```
 
 
@@ -70,7 +70,13 @@ suppressWarnings(g<-ggplot(data=mtcars,aes(y=mpg,x=am))+
         geom_boxplot()+stat_summary(fun.y=mean, colour="darkred", geom="point", shape=18, size=3,show_guide = FALSE)+geom_text(data = means, aes(label = mpg, y = mpg + 1)))+ggtitle("MPG by transmission type")
 ```
 
-## Appendix 2: Residual diagnostics for second regression model
+## Appendix 2: Scatter plots for mtcars dataset variables
+```{r pairs, echo=FALSE}
+pairs(mtcars,lower.panel = NULL)
+```
+
+## Appendix 3: Residual diagnostics for second regression model
+
 ```{r residualdiagnostics, echo=FALSE}
 par(mfrow = c(2,2))
 plot(stepmodel)
